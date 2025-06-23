@@ -366,11 +366,3 @@ poetry run flake8 .                     # Linting
 3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For questions and support contact: lucidtasksubmission@gmail.com
