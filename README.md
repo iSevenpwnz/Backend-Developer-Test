@@ -1,6 +1,6 @@
 # Social Media API
 
-FastAPI додаток з MVC архітектурою для соціальної мережі з JWT аутентифікацією, кешуванням та повною валідацією даних.
+FastAPI application with MVC architecture for social media with JWT authentication, caching and complete data validation.
 
 **🎯 Modern Python project with Poetry dependency management and clean MVC architecture!**
 
@@ -20,108 +20,108 @@ FastAPI додаток з MVC архітектурою для соціально
 **Time Requirement:** ✅ Completed within 2 hours
 **Repository:** Public GitHub repository ready
 
-## 🚀 Особливості
+## 🚀 Features
 
-- **MVC Архітектура**: Розділення на 3 рівні (Controllers, Services, Models)
-- **JWT Аутентифікація**: Безпечна токен-базована аутентифікація
-- **Валідація Payload**: Автоматична перевірка розміру до 1MB
-- **Кешування**: TTL кеш на 5 хвилин для оптимізації
-- **Dependency Injection**: Автоматична аутентифікація через DI
-- **Повна Документація**: Swagger UI та ReDoc
-- **Валідація Типів**: Pydantic схеми з розширеною валідацією
-- **Poetry**: Сучасне управління залежностями та віртуальними середовищами
+- **MVC Architecture**: Separation into 3 layers (Controllers, Services, Models)
+- **JWT Authentication**: Secure token-based authentication
+- **Payload Validation**: Automatic size checking up to 1MB
+- **Caching**: TTL cache for 5 minutes optimization
+- **Dependency Injection**: Automatic authentication through DI
+- **Complete Documentation**: Swagger UI and ReDoc
+- **Type Validation**: Pydantic schemas with extended validation
+- **Poetry**: Modern dependency and virtual environment management
 
-## 📋 Вимоги
+## 📋 Requirements
 
 - Python 3.8+
 - Poetry 1.2+
-- MySQL 5.7+ (опціонально, за замовчуванням використовується SQLite)
+- MySQL 5.7+ (optional, SQLite used by default)
 
-## 🛠 Встановлення
+## 🛠 Installation
 
-### Через Poetry (рекомендовано)
+### Via Poetry (recommended)
 
-1. **Клонування репозиторію**
+1. **Clone repository**
 
 ```bash
 git clone https://github.com/your-username/social-media-api.git
 cd social-media-api
 ```
 
-2. **Встановлення Poetry**
+2. **Install Poetry**
 
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
-# або через pip
+# or via pip
 pip install poetry
 ```
 
-3. **Встановлення залежностей**
+3. **Install dependencies**
 
 ```bash
 poetry install
 ```
 
-### Через pip (legacy)
+### Via pip (legacy)
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Налаштування бази даних**
+3. **Database setup**
 
-- Створіть MySQL базу даних `fastapi_app`
-- Оновіть `DATABASE_URL` в `.env` файлі відповідно до ваших налаштувань
+- Create MySQL database `fastapi_app`
+- Update `DATABASE_URL` in `.env` file according to your settings
 
-4. **Налаштування змінних середовища**
+4. **Environment variables setup**
 
 ```bash
-# .env файл (вже створений)
+# .env file (already created)
 DATABASE_URL=mysql+pymysql://root:password@localhost:3306/fastapi_app
 JWT_SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
 JWT_ALGORITHM=HS256
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
-## 🚀 Запуск
+## 🚀 Running
 
-### Через Poetry (рекомендовано)
+### Via Poetry (recommended)
 
 ```bash
-# Розробка з автоматичним перезавантаженням
+# Development with auto-reload
 poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-# Продакшен
+# Production
 poetry run uvicorn main:app --host 0.0.0.0 --port 8000
 
-# Ручний запуск
+# Manual run
 poetry run python main.py
 ```
 
-### Через стандартний Python
+### Via standard Python
 
 ```bash
 python main.py
 ```
 
-Або через uvicorn:
+Or via uvicorn:
 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-API буде доступне за адресою: http://localhost:8000
+API will be available at: http://localhost:8000
 
-## 📖 Документація API
+## 📖 API Documentation
 
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## 🔗 Ендпоінти
+## 🔗 Endpoints
 
-### Аутентифікація
+### Authentication
 
-#### 1. Реєстрація користувача
+#### 1. User Registration
 
 ```http
 POST /auth/signup
@@ -133,7 +133,7 @@ Content-Type: application/json
 }
 ```
 
-**Відповідь:**
+**Response:**
 
 ```json
 {
@@ -142,7 +142,7 @@ Content-Type: application/json
 }
 ```
 
-#### 2. Авторизація
+#### 2. User Login
 
 ```http
 POST /auth/login
@@ -154,9 +154,9 @@ Content-Type: application/json
 }
 ```
 
-### Пости
+### Posts
 
-#### 3. Створення посту
+#### 3. Create Post
 
 ```http
 POST /posts/
@@ -164,86 +164,86 @@ Authorization: Bearer <jwt-token>
 Content-Type: application/json
 
 {
-    "text": "Це мій новий пост!"
+    "text": "This is my new post!"
 }
 ```
 
-#### 4. Отримання всіх постів
+#### 4. Get All Posts
 
 ```http
 GET /posts/
 Authorization: Bearer <jwt-token>
 ```
 
-#### 5. Видалення посту
+#### 5. Delete Post
 
 ```http
 DELETE /posts/{post_id}
 Authorization: Bearer <jwt-token>
 ```
 
-## 🏗 Архітектура MVC
+## 🏗 MVC Architecture
 
 ### Models (models/)
 
-- `user.py` - SQLAlchemy модель користувача
-- `post.py` - SQLAlchemy модель посту
+- `user.py` - SQLAlchemy user model
+- `post.py` - SQLAlchemy post model
 
 ### Views/Controllers (controllers/)
 
-- `auth_controller.py` - Ендпоінти аутентифікації
-- `post_controller.py` - Ендпоінти для постів
+- `auth_controller.py` - Authentication endpoints
+- `post_controller.py` - Post endpoints
 
 ### Services (services/)
 
-- `user_service.py` - Бізнес-логіка користувачів
-- `post_service.py` - Бізнес-логіка постів
+- `user_service.py` - User business logic
+- `post_service.py` - Post business logic
 
-### Додаткові компоненти
+### Additional Components
 
 #### Schemas (schemas/)
 
-- `user.py` - Pydantic схеми користувача
-- `post.py` - Pydantic схеми посту
+- `user.py` - Pydantic user schemas
+- `post.py` - Pydantic post schemas
 
 #### Utils (utils/)
 
-- `auth.py` - JWT та хешування паролів
+- `auth.py` - JWT and password hashing
 - `dependencies.py` - Dependency injection
-- `cache.py` - Система кешування
+- `cache.py` - Caching system
 
 #### Database (database/)
 
-- `config.py` - Конфігурація SQLAlchemy
+- `config.py` - SQLAlchemy configuration
 
-## 🔒 Безпека
+## 🔒 Security
 
-- **Хешування паролів**: bcrypt
-- **JWT токени**: HS256 алгоритм
-- **Валідація паролів**: Мінімум 8 символів, літери та цифри
-- **CORS**: Налаштований для розробки
+- **Password Hashing**: bcrypt
+- **JWT Tokens**: HS256 algorithm
+- **Password Validation**: Minimum 8 characters, letters and digits
+- **CORS**: Configured for development
 
-## 📊 Кешування
+## 📊 Caching
 
-- **TTL**: 5 хвилин (300 секунд)
-- **Максимум записів**: 1000
-- **Автоматична інвалідація**: При створенні/видаленні постів
+- **TTL**: 5 minutes (300 seconds)
+- **Maximum records**: 1000
+- **Auto invalidation**: On post create/delete
 
-## 🧪 Тестування
+## 🧪 Testing
 
-### Автоматичне тестування
+### Automated Testing
 
 ```bash
-# Через Poetry
+# Via Poetry
 poetry run python test_api.py
 
-# Через Python
+# Via Python
 python test_api.py
 ```
 
-### Ручне тестування
+### Manual Testing
 
-1. **Реєстрація**:
+1. **Registration**:
 
 ```bash
 curl -X POST "http://localhost:8000/auth/signup" \
@@ -251,23 +251,23 @@ curl -X POST "http://localhost:8000/auth/signup" \
      -d '{"email": "test@example.com", "password": "Password123"}'
 ```
 
-2. **Створення посту**:
+2. **Create Post**:
 
 ```bash
 curl -X POST "http://localhost:8000/posts/" \
      -H "Authorization: Bearer <your-token>" \
      -H "Content-Type: application/json" \
-     -d '{"text": "Мій перший пост!"}'
+     -d '{"text": "My first post!"}'
 ```
 
-3. **Отримання постів**:
+3. **Get Posts**:
 
 ```bash
 curl -X GET "http://localhost:8000/posts/" \
      -H "Authorization: Bearer <your-token>"
 ```
 
-## 📈 Моніторинг
+## 📈 Monitoring
 
 ### Health Check
 
@@ -275,102 +275,102 @@ curl -X GET "http://localhost:8000/posts/" \
 GET /health
 ```
 
-### Статистика постів
+### Post Statistics
 
 ```http
 GET /posts/stats
 Authorization: Bearer <jwt-token>
 ```
 
-## 🚨 Обробка помилок
+## 🚨 Error Handling
 
-API повертає стандартизовані помилки:
+API returns standardized errors:
 
-- **400**: Неправильні дані
-- **401**: Недійсний токен
-- **404**: Ресурс не знайдено
-- **422**: Помилка валідації
-- **500**: Помилка сервера
+- **400**: Invalid data
+- **401**: Invalid token
+- **404**: Resource not found
+- **422**: Validation error
+- **500**: Server error
 
-## 📝 Валідація
+## 📝 Validation
 
-### Пароль
+### Password
 
-- Мінімум 8 символів
-- Принаймні одна літера
-- Принаймні одна цифра
-- Принаймні одна велика літера
+- Minimum 8 characters
+- At least one letter
+- At least one digit
+- At least one uppercase letter
 
-### Пост
+### Post
 
-- Мінімум 1 символ
-- Максимум 1MB
+- Minimum 1 character
+- Maximum 1MB
 
-## 🔧 Команди Poetry
+## 🔧 Poetry Commands
 
 ```bash
-# Встановлення залежностей
+# Install dependencies
 poetry install
 
-# Додавання нової залежності
+# Add new dependency
 poetry add package-name
 
-# Додавання dev залежності
+# Add dev dependency
 poetry add --group dev package-name
 
-# Запуск у віртуальному середовищі
+# Run in virtual environment
 poetry run python script.py
 
-# Активація віртуального середовища
+# Activate virtual environment
 poetry shell
 
-# Показати інформацію про залежності
+# Show dependency information
 poetry show
 
-# Оновлення залежностей
+# Update dependencies
 poetry update
 
-# Експорт у requirements.txt
+# Export to requirements.txt
 poetry export -f requirements.txt --output requirements.txt
 
-# Публікація пакету
+# Publish package
 poetry publish --build
 ```
 
-## 🎯 Корисні скрипти
+## 🎯 Useful Scripts
 
 ```bash
-# Розробка
-poetry run uvicorn main:app --reload     # Запуск з auto-reload
-poetry run python main.py               # Ручний запуск
-poetry run python test_api.py           # Запуск тестів
+# Development
+poetry run uvicorn main:app --reload     # Run with auto-reload
+poetry run python main.py               # Manual run
+poetry run python test_api.py           # Run tests
 
-# Форматування коду (після встановлення dev залежностей)
-poetry run black .                      # Форматування Python коду
-poetry run isort .                      # Сортування імпортів
+# Code formatting (after installing dev dependencies)
+poetry run black .                      # Format Python code
+poetry run isort .                      # Sort imports
 poetry run flake8 .                     # Linting
 ```
 
-## 🔧 Налаштування виробничого середовища
+## 🔧 Production Environment Setup
 
-1. Змініть `JWT_SECRET_KEY` на безпечний ключ
-2. Налаштуйте правильний `DATABASE_URL`
-3. Обмежте CORS origins
-4. Увімкніть HTTPS
-5. Додайте rate limiting
+1. Change `JWT_SECRET_KEY` to a secure key
+2. Configure proper `DATABASE_URL`
+3. Limit CORS origins
+4. Enable HTTPS
+5. Add rate limiting
 
-## 🤝 Внесок
+## 🤝 Contributing
 
-1. Fork проєкт
-2. Створіть feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit зміни (`git commit -m 'Add some AmazingFeature'`)
-4. Push в branch (`git push origin feature/AmazingFeature`)
-5. Відкрийте Pull Request
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
-## 📄 Ліцензія
+## 📄 License
 
-MIT License - див. [LICENSE](LICENSE) файл для деталей.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## 📞 Підтримка
+## 📞 Support
 
-Для питань та підтримки звертайтесь: lucidtasksubmission@gmail.com
+For questions and support contact: lucidtasksubmission@gmail.com

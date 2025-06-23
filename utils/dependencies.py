@@ -1,6 +1,6 @@
 """
-Dependency Injection функції для FastAPI.
-Забезпечують автоматичну аутентифікацію та валідацію токенів.
+Dependency Injection functions for FastAPI.
+Provide automatic authentication and token validation.
 """
 
 from typing import Optional
@@ -11,7 +11,7 @@ from database.config import get_db
 from models.user import User
 from utils.auth import verify_token, extract_user_id_from_token
 
-# HTTP Bearer схема для автоматичного витягування токена з заголовків
+# HTTP Bearer scheme for automatic token extraction from headers
 security = HTTPBearer()
 
 
@@ -19,17 +19,17 @@ def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> int:
     """
-    Dependency injection функція для отримання ID поточного користувача з токена.
-    Автоматично витягує та валідує JWT токен з заголовка Authorization.
+    Dependency injection function to get current user ID from token.
+    Automatically extracts and validates JWT token from Authorization header.
 
     Args:
-        credentials (HTTPAuthorizationCredentials): JWT токен з заголовка Authorization
+        credentials (HTTPAuthorizationCredentials): JWT token from Authorization header
 
     Returns:
-        int: ID автентифікованого користувача
+        int: Authenticated user ID
 
     Raises:
-        HTTPException: Якщо токен недійсний або відсутній
+        HTTPException: If token is invalid or missing
 
     Example:
         @app.get("/protected")
@@ -44,18 +44,18 @@ def get_current_user(
     db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)
 ) -> User:
     """
-    Dependency injection функція для отримання повної інформації про поточного користувача.
-    Комбінує валідацію токена з завантаженням даних користувача з бази даних.
+    Dependency injection function to get complete current user information.
+    Combines token validation with loading user data from database.
 
     Args:
-        db (Session): Сесія бази даних
-        user_id (int): ID користувача з токена
+        db (Session): Database session
+        user_id (int): User ID from token
 
     Returns:
-        User: Об'єкт користувача з бази даних
+        User: User object from database
 
     Raises:
-        HTTPException: Якщо користувач не знайдений або токен недійсний
+        HTTPException: If user not found or token invalid
 
     Example:
         @app.get("/profile")
@@ -67,7 +67,7 @@ def get_current_user(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Користувача не знайдено",
+            detail="User not found",
         )
 
     return user
@@ -77,17 +77,17 @@ def validate_token_only(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> dict:
     """
-    Dependency injection функція для валідації токена без завантаження користувача.
-    Використовується коли потрібно тільки перевірити токен без доступу до бази даних.
+    Dependency injection function for token validation without loading user.
+    Used when only token verification is needed without database access.
 
     Args:
-        credentials (HTTPAuthorizationCredentials): JWT токен з заголовка Authorization
+        credentials (HTTPAuthorizationCredentials): JWT token from Authorization header
 
     Returns:
-        dict: Декодовані дані з токена
+        dict: Decoded token data
 
     Raises:
-        HTTPException: Якщо токен недійсний
+        HTTPException: If token is invalid
 
     Example:
         @app.get("/token-info")
@@ -104,21 +104,21 @@ def optional_authentication(
     ),
 ) -> Optional[int]:
     """
-    Dependency injection функція для опціональної аутентифікації.
-    Повертає ID користувача якщо токен присутній та валідний, інакше None.
+    Dependency injection function for optional authentication.
+    Returns user ID if token is present and valid, otherwise None.
 
     Args:
-        credentials (Optional[HTTPAuthorizationCredentials]): Опціональний JWT токен
+        credentials (Optional[HTTPAuthorizationCredentials]): Optional JWT token
 
     Returns:
-        Optional[int]: ID користувача або None якщо токен відсутній/недійсний
+        Optional[int]: User ID or None if token absent/invalid
 
     Example:
         @app.get("/public-or-private")
         def mixed_route(user_id: Optional[int] = Depends(optional_authentication)):
             if user_id:
-                return {"message": "Ви автентифіковані", "user_id": user_id}
-            return {"message": "Публічний доступ"}
+                return {"message": "You are authenticated", "user_id": user_id}
+            return {"message": "Public access"}
     """
     if not credentials:
         return None
@@ -127,5 +127,5 @@ def optional_authentication(
         token = credentials.credentials
         return extract_user_id_from_token(token)
     except HTTPException:
-        # Якщо токен недійсний, повертаємо None замість помилки
+        # If token is invalid, return None instead of error
         return None

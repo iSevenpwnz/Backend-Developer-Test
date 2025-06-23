@@ -1,6 +1,6 @@
 """
-Система кешування для оптимізації запитів до бази даних.
-Реалізує кешування постів користувача на 5 хвилин.
+Caching system for database query optimization.
+Implements user post caching for 5 minutes.
 """
 
 import json
@@ -9,28 +9,28 @@ from typing import Any, Optional, List
 from cachetools import TTLCache
 from datetime import datetime
 
-# Кеш з TTL (Time To Live) 5 хвилин = 300 секунд
-# Максимально 1000 записів в кеші
+# TTL (Time To Live) cache 5 minutes = 300 seconds
+# Maximum 1000 records in cache
 posts_cache = TTLCache(maxsize=1000, ttl=300)
 
 
 class CacheManager:
     """
-    Менеджер кешування для управління збереженням та отриманням даних з кешу.
-    Використовує TTL кеш для автоматичного видалення застарілих записів.
+    Cache manager for managing data storage and retrieval from cache.
+    Uses TTL cache for automatic removal of stale records.
     """
 
     @staticmethod
     def _make_cache_key(user_id: int, prefix: str = "posts") -> str:
         """
-        Створює унікальний ключ для кешування.
+        Creates unique key for caching.
 
         Args:
-            user_id (int): ID користувача
-            prefix (str): Префікс для типу даних (за замовчуванням "posts")
+            user_id (int): User ID
+            prefix (str): Data type prefix (default "posts")
 
         Returns:
-            str: Унікальний ключ кешування
+            str: Unique cache key
 
         Example:
             >>> CacheManager._make_cache_key(123)
@@ -41,41 +41,37 @@ class CacheManager:
     @staticmethod
     def get_user_posts(user_id: int) -> Optional[List[dict]]:
         """
-        Отримує пости користувача з кешу.
+        Gets user posts from cache.
 
         Args:
-            user_id (int): ID користувача
+            user_id (int): User ID
 
         Returns:
-            Optional[List[dict]]: Список постів з кешу або None якщо кеш порожній
+            Optional[List[dict]]: List of posts from cache or None if cache empty
 
         Example:
             >>> posts = CacheManager.get_user_posts(123)
             >>> if posts:
-            ...     print(f"Знайдено {len(posts)} постів у кеші")
+            ...     print(f"Found {len(posts)} posts in cache")
         """
         cache_key = CacheManager._make_cache_key(user_id)
         cached_data = posts_cache.get(cache_key)
 
         if cached_data:
-            print(
-                f"[CACHE HIT] Знайдено пости для користувача {user_id} у кеші"
-            )
+            print(f"[CACHE HIT] Found posts for user {user_id} in cache")
             return cached_data.get("posts")
 
-        print(
-            f"[CACHE MISS] Пости для користувача {user_id} не знайдено у кеші"
-        )
+        print(f"[CACHE MISS] Posts for user {user_id} not found in cache")
         return None
 
     @staticmethod
     def set_user_posts(user_id: int, posts: List[dict]) -> None:
         """
-        Зберігає пости користувача в кеш.
+        Stores user posts in cache.
 
         Args:
-            user_id (int): ID користувача
-            posts (List[dict]): Список постів для збереження
+            user_id (int): User ID
+            posts (List[dict]): List of posts to store
 
         Example:
             >>> posts_data = [{"id": 1, "text": "Hello", "user_id": 123}]
@@ -90,16 +86,16 @@ class CacheManager:
 
         posts_cache[cache_key] = cache_data
         print(
-            f"[CACHE SET] Збережено {len(posts)} постів для користувача {user_id} у кеш"
+            f"[CACHE SET] Stored {len(posts)} posts for user {user_id} in cache"
         )
 
     @staticmethod
     def invalidate_user_posts(user_id: int) -> None:
         """
-        Видаляє пости користувача з кешу (для оновлення після створення/видалення посту).
+        Removes user posts from cache (for refresh after create/delete post).
 
         Args:
-            user_id (int): ID користувача
+            user_id (int): User ID
 
         Example:
             >>> CacheManager.invalidate_user_posts(123)
@@ -108,25 +104,21 @@ class CacheManager:
 
         if cache_key in posts_cache:
             del posts_cache[cache_key]
-            print(
-                f"[CACHE INVALIDATE] Видалено кеш постів для користувача {user_id}"
-            )
+            print(f"[CACHE INVALIDATE] Removed post cache for user {user_id}")
         else:
-            print(
-                f"[CACHE INVALIDATE] Кеш для користувача {user_id} вже порожній"
-            )
+            print(f"[CACHE INVALIDATE] Cache for user {user_id} already empty")
 
     @staticmethod
     def get_cache_info() -> dict:
         """
-        Отримує інформацію про стан кешу (для моніторингу).
+        Gets cache status information (for monitoring).
 
         Returns:
-            dict: Статистика кешу
+            dict: Cache statistics
 
         Example:
             >>> info = CacheManager.get_cache_info()
-            >>> print(f"Записів у кеші: {info['size']}")
+            >>> print(f"Cache records: {info['size']}")
         """
         return {
             "size": len(posts_cache),
@@ -140,14 +132,14 @@ class CacheManager:
     @staticmethod
     def clear_cache() -> None:
         """
-        Очищає весь кеш (для тестування або адміністративних цілей).
+        Clears entire cache (for testing or administrative purposes).
 
         Example:
             >>> CacheManager.clear_cache()
         """
         posts_cache.clear()
-        print("[CACHE CLEAR] Кеш повністю очищено")
+        print("[CACHE CLEAR] Cache completely cleared")
 
 
-# Alias для зручності використання
+# Alias for convenience
 cache = CacheManager()

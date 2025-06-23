@@ -1,6 +1,6 @@
 """
-Утиліти для аутентифікації, JWT токенів та хешування паролів.
-Забезпечує безпечну роботу з паролями та токенами доступу.
+Authentication utilities, JWT tokens and password hashing.
+Provides secure password and access token management.
 """
 
 import os
@@ -11,31 +11,35 @@ from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from dotenv import load_dotenv
 
-# Завантаження змінних середовища
+# Load environment variables
 load_dotenv()
 
-# Налаштування для JWT
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-super-secret-jwt-key-change-this-in-production")
+# JWT settings
+SECRET_KEY = os.getenv(
+    "JWT_SECRET_KEY", "your-super-secret-jwt-key-change-this-in-production"
+)
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+)
 
-# Контекст для хешування паролів
+# Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
     """
-    Хешує пароль користувача за допомогою bcrypt.
-    
+    Hashes user password using bcrypt.
+
     Args:
-        password (str): Пароль в звичайному тексті
-        
+        password (str): Plain text password
+
     Returns:
-        str: Хешований пароль
-        
+        str: Hashed password
+
     Example:
         >>> hashed = hash_password("MyPassword123")
-        >>> print(len(hashed))  # Довжина хешу bcrypt
+        >>> print(len(hashed))  # bcrypt hash length
         60
     """
     return pwd_context.hash(password)
@@ -43,15 +47,15 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    Перевіряє, чи відповідає звичайний пароль хешованому.
-    
+    Verifies if plain password matches hashed password.
+
     Args:
-        plain_password (str): Пароль в звичайному тексті
-        hashed_password (str): Хешований пароль з бази даних
-        
+        plain_password (str): Plain text password
+        hashed_password (str): Hashed password from database
+
     Returns:
-        bool: True якщо паролі збігаються, False інакше
-        
+        bool: True if passwords match, False otherwise
+
     Example:
         >>> hashed = hash_password("MyPassword123")
         >>> verify_password("MyPassword123", hashed)
@@ -62,50 +66,52 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """
-    Створює JWT токен доступу з зазначеними даними.
-    
+    Creates JWT access token with expiration time.
+
     Args:
-        data (dict): Дані для включення в токен (зазвичай user_id, email)
-        expires_delta (Optional[timedelta]): Час дії токена (за замовчуванням 30 хвилин)
-        
+        data (dict): Data to encode in token
+        expires_delta (Optional[timedelta]): Custom expiration time
+
     Returns:
-        str: JWT токен доступу
-        
+        str: Encoded JWT token
+
     Example:
         >>> token = create_access_token({"sub": "user@example.com", "user_id": 1})
-        >>> print(type(token))
-        <class 'str'>
+        >>> print(token[:20])
+        eyJ0eXAiOiJKV1QiLCJh...
     """
     to_encode = data.copy()
-    
-    # Встановлення часу закінчення дії токена
+
+    # Set token expiration time
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+        expire = datetime.utcnow() + timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+
     to_encode.update({"exp": expire})
-    
-    # Кодування токена
+
+    # Encode token
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def verify_token(token: str) -> dict:
     """
-    Перевіряє та декодує JWT токен.
-    
+    Verifies and decodes JWT token.
+
     Args:
-        token (str): JWT токен для перевірки
-        
+        token (str): JWT token to verify
+
     Returns:
-        dict: Декодовані дані з токена
-        
+        dict: Decoded token data
+
     Raises:
-        HTTPException: Якщо токен недійсний або закінчився
-        
+        HTTPException: If token is invalid or expired
+
     Example:
         >>> token = create_access_token({"sub": "user@example.com", "user_id": 1})
         >>> payload = verify_token(token)
@@ -113,43 +119,43 @@ def verify_token(token: str) -> dict:
         user@example.com
     """
     try:
-        # Декодування та перевірка токена
+        # Decode and verify token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        # Перевірка наявності обов'язкових полів
+
+        # Check required fields
         email: str = payload.get("sub")
         user_id: int = payload.get("user_id")
-        
+
         if email is None or user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Недійсний токен: відсутні обов'язкові поля",
+                detail="Invalid token: missing required fields",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-            
+
         return payload
-        
+
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Недійсний токен: {str(e)}",
+            detail=f"Invalid token: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
 
 def extract_user_id_from_token(token: str) -> int:
     """
-    Витягує ID користувача з JWT токена.
-    
+    Extracts user ID from JWT token.
+
     Args:
-        token (str): JWT токен
-        
+        token (str): JWT token
+
     Returns:
-        int: ID користувача
-        
+        int: User ID
+
     Raises:
-        HTTPException: Якщо токен недійсний або не містить user_id
-        
+        HTTPException: If token is invalid or doesn't contain user_id
+
     Example:
         >>> token = create_access_token({"sub": "user@example.com", "user_id": 1})
         >>> user_id = extract_user_id_from_token(token)
@@ -158,12 +164,12 @@ def extract_user_id_from_token(token: str) -> int:
     """
     payload = verify_token(token)
     user_id = payload.get("user_id")
-    
+
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Токен не містить ID користувача",
+            detail="Token does not contain user ID",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    return user_id 
+
+    return user_id

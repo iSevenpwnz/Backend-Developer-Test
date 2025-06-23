@@ -12,27 +12,25 @@ BASE_URL = "http://localhost:8000"
 
 def test_api():
     """
-    Тестує всі ендпоінти API в правильній послідовності.
+    Tests all API endpoints in correct order.
     """
-    print("🚀 Початок тестування API...")
+    print("🚀 Starting API testing...")
 
-    # Тестові дані
+    # Test data
     test_user = {"email": "test@example.com", "password": "TestPassword123"}
 
-    test_post = {
-        "text": "Це тестовий пост для перевірки функціональності API!"
-    }
+    test_post = {"text": "This is a test post to verify API functionality!"}
 
     try:
-        # 1. Перевірка здоров'я API
-        print("\n1️⃣ Перевірка health check...")
+        # 1. API health check
+        print("\n1️⃣ Testing health check...")
         response = requests.get(f"{BASE_URL}/health")
         print(f"Health Status: {response.status_code}")
         if response.status_code == 200:
-            print(f"✅ API працює: {response.json()}")
+            print(f"✅ API is running: {response.json()}")
 
-        # 2. Реєстрація користувача
-        print("\n2️⃣ Тестування реєстрації...")
+        # 2. User registration
+        print("\n2️⃣ Testing registration...")
         response = requests.post(
             f"{BASE_URL}/auth/signup",
             json=test_user,
@@ -43,13 +41,13 @@ def test_api():
         if response.status_code == 201:
             signup_data = response.json()
             token = signup_data["access_token"]
-            print(f"✅ Реєстрація успішна! Токен отримано.")
+            print(f"✅ Registration successful! Token received.")
         else:
-            print(f"❌ Помилка реєстрації: {response.text}")
+            print(f"❌ Registration error: {response.text}")
             return
 
-        # 3. Авторизація
-        print("\n3️⃣ Тестування авторизації...")
+        # 3. Authorization
+        print("\n3️⃣ Testing authorization...")
         response = requests.post(
             f"{BASE_URL}/auth/login",
             json=test_user,
@@ -59,19 +57,19 @@ def test_api():
 
         if response.status_code == 200:
             login_data = response.json()
-            token = login_data["access_token"]  # Оновлюємо токен
-            print(f"✅ Авторизація успішна!")
+            token = login_data["access_token"]  # Update token
+            print(f"✅ Authorization successful!")
         else:
-            print(f"❌ Помилка авторизації: {response.text}")
+            print(f"❌ Authorization error: {response.text}")
 
-        # Заголовки для автентифікованих запитів
+        # Headers for authenticated requests
         auth_headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
         }
 
-        # 4. Створення посту
-        print("\n4️⃣ Тестування створення посту...")
+        # 4. Create post
+        print("\n4️⃣ Testing post creation...")
         response = requests.post(
             f"{BASE_URL}/posts/", json=test_post, headers=auth_headers
         )
@@ -80,41 +78,41 @@ def test_api():
         if response.status_code == 201:
             post_data = response.json()
             post_id = post_data["id"]
-            print(f"✅ Пост створено! ID: {post_id}")
-            print(f"Текст: {post_data['text']}")
+            print(f"✅ Post created! ID: {post_id}")
+            print(f"Text: {post_data['text']}")
         else:
-            print(f"❌ Помилка створення посту: {response.text}")
+            print(f"❌ Post creation error: {response.text}")
             return
 
-        # 5. Отримання постів (перша спроба - запит до БД)
-        print("\n5️⃣ Тестування отримання постів (запит до БД)...")
+        # 5. Get posts (first attempt - database request)
+        print("\n5️⃣ Testing get posts (database request)...")
         response = requests.get(f"{BASE_URL}/posts/", headers=auth_headers)
         print(f"Get Posts Status: {response.status_code}")
 
         if response.status_code == 200:
             posts_data = response.json()
-            print(f"✅ Отримано {len(posts_data)} постів з БД")
+            print(f"✅ Retrieved {len(posts_data)} posts from DB")
             for post in posts_data:
-                print(f"  - Пост {post['id']}: {post['text'][:50]}...")
+                print(f"  - Post {post['id']}: {post['text'][:50]}...")
         else:
-            print(f"❌ Помилка отримання постів: {response.text}")
+            print(f"❌ Get posts error: {response.text}")
 
-        # 6. Отримання постів (друга спроба - з кешу)
-        print("\n6️⃣ Тестування кешування (запит з кешу)...")
+        # 6. Get posts (second attempt - from cache)
+        print("\n6️⃣ Testing caching (cache request)...")
         start_time = time.time()
         response = requests.get(f"{BASE_URL}/posts/", headers=auth_headers)
         end_time = time.time()
         response_time = (end_time - start_time) * 1000
 
         print(f"Get Posts (Cache) Status: {response.status_code}")
-        print(f"Час відповіді: {response_time:.2f} мс")
+        print(f"Response time: {response_time:.2f} ms")
 
         if response.status_code == 200:
             cached_posts_data = response.json()
-            print(f"✅ Отримано {len(cached_posts_data)} постів з кешу")
+            print(f"✅ Retrieved {len(cached_posts_data)} posts from cache")
 
-        # 7. Статистика постів
-        print("\n7️⃣ Тестування статистики...")
+        # 7. Post statistics
+        print("\n7️⃣ Testing statistics...")
         response = requests.get(
             f"{BASE_URL}/posts/stats", headers=auth_headers
         )
@@ -122,15 +120,13 @@ def test_api():
 
         if response.status_code == 200:
             stats_data = response.json()
-            print(f"✅ Статистика отримана:")
-            print(f"  - Всього постів: {stats_data['total_posts']}")
-            print(f"  - Записів у кеші: {stats_data['cache_info']['size']}")
+            print(f"✅ Statistics retrieved:")
+            print(f"  - Total posts: {stats_data['total_posts']}")
+            print(f"  - Cache records: {stats_data['cache_info']['size']}")
 
-        # 8. Створення ще одного посту
-        print("\n8️⃣ Створення другого посту...")
-        test_post2 = {
-            "text": "Другий тестовий пост для перевірки інвалідації кешу"
-        }
+        # 8. Create another post
+        print("\n8️⃣ Creating second post...")
+        test_post2 = {"text": "Second test post to verify cache invalidation"}
         response = requests.post(
             f"{BASE_URL}/posts/", json=test_post2, headers=auth_headers
         )
@@ -138,10 +134,10 @@ def test_api():
         if response.status_code == 201:
             post_data2 = response.json()
             post_id2 = post_data2["id"]
-            print(f"✅ Другий пост створено! ID: {post_id2}")
+            print(f"✅ Second post created! ID: {post_id2}")
 
-        # 9. Видалення посту
-        print("\n9️⃣ Тестування видалення посту...")
+        # 9. Delete post
+        print("\n9️⃣ Testing post deletion...")
         response = requests.delete(
             f"{BASE_URL}/posts/{post_id}", headers=auth_headers
         )
@@ -149,23 +145,23 @@ def test_api():
 
         if response.status_code == 200:
             delete_data = response.json()
-            print(f"✅ Пост видалено: {delete_data['message']}")
+            print(f"✅ Post deleted: {delete_data['message']}")
         else:
-            print(f"❌ Помилка видалення посту: {response.text}")
+            print(f"❌ Post deletion error: {response.text}")
 
-        # 10. Перевірка постів після видалення
-        print("\n🔟 Перевірка постів після видалення...")
+        # 10. Check posts after deletion
+        print("\n🔟 Checking posts after deletion...")
         response = requests.get(f"{BASE_URL}/posts/", headers=auth_headers)
 
         if response.status_code == 200:
             final_posts = response.json()
-            print(f"✅ Залишилось {len(final_posts)} постів")
+            print(f"✅ {len(final_posts)} posts remaining")
             for post in final_posts:
-                print(f"  - Пост {post['id']}: {post['text'][:50]}...")
+                print(f"  - Post {post['id']}: {post['text'][:50]}...")
 
-        # 11. Тестування валідації великого посту (1MB)
-        print("\n1️⃣1️⃣ Тестування валідації розміру посту...")
-        large_text = "А" * (1024 * 1024 + 1)  # Більше 1MB
+        # 11. Test large post validation (1MB)
+        print("\n1️⃣1️⃣ Testing post size validation...")
+        large_text = "A" * (1024 * 1024 + 1)  # More than 1MB
         large_post = {"text": large_text}
 
         response = requests.post(
@@ -174,27 +170,27 @@ def test_api():
         print(f"Large Post Status: {response.status_code}")
 
         if response.status_code == 422:
-            print("✅ Валідація розміру працює - великий пост відхилено")
+            print("✅ Size validation works - large post rejected")
         else:
             print(
-                f"❌ Очікувалась помилка валідації, але отримано: {response.status_code}"
+                f"❌ Expected validation error, but got: {response.status_code}"
             )
 
-        print("\n🎉 Всі тести завершено!")
+        print("\n🎉 All tests completed!")
 
     except requests.exceptions.ConnectionError:
         print(
-            "❌ Помилка підключення до API. Переконайтесь, що сервер запущено на http://localhost:8000"
+            "❌ Connection error to API. Make sure server is running at http://localhost:8000"
         )
     except Exception as e:
-        print(f"❌ Помилка тестування: {str(e)}")
+        print(f"❌ Testing error: {str(e)}")
 
 
 def test_invalid_token():
     """
-    Тестує поведінку API з недійсним токеном.
+    Tests API behavior with invalid token.
     """
-    print("\n🔒 Тестування недійсного токена...")
+    print("\n🔒 Testing invalid token...")
 
     invalid_headers = {
         "Authorization": "Bearer invalid-token-here",
@@ -204,14 +200,12 @@ def test_invalid_token():
     response = requests.get(f"{BASE_URL}/posts/", headers=invalid_headers)
 
     if response.status_code == 401:
-        print("✅ Недійсний токен правильно відхилено")
+        print("✅ Invalid token properly rejected")
     else:
-        print(
-            f"❌ Очікувалась помилка 401, але отримано: {response.status_code}"
-        )
+        print(f"❌ Expected 401 error, but got: {response.status_code}")
 
 
 if __name__ == "__main__":
     test_api()
     test_invalid_token()
-    print("\n📋 Тестування завершено. Перевірте результати вище.")
+    print("\n📋 Testing completed. Check results above.")
